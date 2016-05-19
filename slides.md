@@ -2,11 +2,11 @@
 
 ### In UI Frameworks ###
 
-_Jon Eisen_
+_Jon Eisen_, Activision Publishing
 
 LambdaConf
 
-May 26, 2016
+May 28, 2016
 
 http://joneisen.me/r/frpui
 
@@ -114,8 +114,224 @@ Declarative statement of _effects_:
 - Observers listen on a view to update UI
 - Accidental complexity is pushed to declarative infrastructure
 
+>>>>>
+
+### What is the ESSENCE of FRP?
+
+- Separation of _state_ from UI and external actions
+- Separation of _essential_ and _accidential_ complexity
+- Relational data model
+- Observers and Feeders are **pure** functions
+
 -----
 
-### Examples in UIs
+### UI Design Influences
 
-????
+> I believe modern UI programming models are influenced from the ideas of Functional Relational Programming.
+
+>>>>>
+
+## Timeline Note
+
+- Feb 3, 2006: `jQuery` published
+- Feb 6, 2006: _Out of the Tar Pit_ published
+
+
+-----
+
+### Examples in Web UI
+
+- Redux
+- Elm
+- Om
+
+
+-----
+
+#### Redux
+
+Based on _Flux Architecture_:
+
+![flux-arch](flux-simple-f8-diagram-with-client-action-1300w.png)
+
+>>>>>
+
+#### Redux
+
+```javascript
+let store = createStore(update) //update: state -> action -> state
+
+// Observer!
+store.subscribe(() =>
+  console.log(store.getState())
+)
+
+// Feeder!
+store.dispatch(action)
+```
+
+```javascript
+// React Component
+class Counter extends Component {
+  render() {
+    return (
+      <div>
+        <span>{this.props.value}</span>
+      </div>
+    )
+  }
+}
+```
+
+>>>>>
+
+#### Redux
+##### Like FRP?
+
+- Separation of _data_ from _UI_ (**Observers**)
+- Separation of _actions_ from _data_ (**Feeders**)
+- Pure Data Changes (Reductions)
+
+-----
+
+#### Elm Architecture
+
+Basic Pattern of Elm Architecture
+
+- Model: the state of your application
+- Update: a way to update your state
+- View: a way to view your state as HTML
+
+>>>>>
+
+#### Elm Architecture
+
+```elm
+type alias Model = { ... }
+```
+
+``` elm
+-- UPDATE
+type Msg = Reset | ...
+
+update : Msg -> Model -> Model
+update msg model =
+  case msg of
+    Reset -> ...
+    ...
+
+```
+
+``` elm
+-- VIEW
+view : Model -> Html Msg
+view model =
+  ...
+```
+
+>>>>>
+
+#### Elm
+
+Much like Redux,
+
+- Separation of _data_ from _UI_ (**Observers**)
+- Separation of _actions_ from _data_ (**Feeders**)
+- Pure Data Changes (Reductions)
+
+-----
+
+#### Om ####
+
+```clojure
+;; Read from the data
+(defmulti read om/dispatch)
+
+;; Mutate the data
+(defmulti mutate om/dispatch)
+
+```
+
+```clojure
+
+(defui Counter
+  static om/IQuery (query [this] [{:cntr [:app/counter]}])
+  Object (render [this]
+           (let [{count :app/counter :as entity}
+                 (get-in (om/props this) [:cntr 0])]
+      (dom/div
+        (dom/span nil (str "Count: " count))
+        (dom/button
+          #js {:onClick
+               #(om/transact! this [[:app/increment entity]])}
+          "Click me!")))))
+
+```
+
+
+>>>>>
+
+#### Om/Datascript
+
+```clojure
+(require '[datascript.core :as d])
+
+(def conn (d/create-conn {}))
+
+(d/transact! conn [{:app/id :the-one-counter
+                    :app/count 0}])
+```
+
+```clojure
+(defmethod read :app/counter
+  [{:keys [state query]} _ _]
+  {:value (d/q '[:find [(pull ?e ?selector) ...]
+                 :in $ ?selector
+                 :where [?e :app/id]]
+            (d/db state) query)})
+
+(defmethod mutate :app/increment
+  [{:keys [state]} _ entity]
+  {:value {:keys [:app/counter]}
+   :action (fn [] (d/transact! state
+                    [(update-in entity [:app/count] inc)]))})
+```
+
+>>>>>
+
+#### Om/Datascript
+
+Just like Elm and Redux:
+
+- Separation of _data_ from _UI_ (**Observers**)
+- Separation of _actions_ from _data_ (**Feeders**)
+
+But now...
+
+- **Relational** and **Pure** data changes!
+
+-----
+
+## Conclusions
+
+- The ideas of FRP were not popular when published
+- But the basic architecture is visible in today's UI frameworks
+- Om/datascript is the most popular embodiment of FRP
+
+>>>>>
+
+### Does FRP solve the _Software Crisis_?
+
+<img src="tyson-cold.jpg" height=300>
+
+Probably Not.
+
+-----
+
+## Thanks
+
+_Jon Eisen_
+
+http://joneisen.me
+
+Enjoy LambdaConf!
