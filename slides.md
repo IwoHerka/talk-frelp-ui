@@ -2,7 +2,7 @@
 
 ### In UI Frameworks ###
 
-_Jon Eisen_, Activision Publishing
+_Jon Eisen_
 
 LambdaConf
 
@@ -12,19 +12,28 @@ http://joneisen.me/r/frpui
 
 -----
 
+![flatirons](flatirons.jpg)
+
+-----
+
 ## Contents
 
 - What is FRP?
 - Examples in modern UI Frameworks
-- Why it matters
 
 -----
 
 ## What is FRP?
 
-_Functional Relational Programming_ was defined in _Out of the Tar Pit_ (2006 Marks and Moseley).
+**F**unctional **R**elational **P**rogramming was defined in _Out of the Tar Pit_ (2006 Marks and Moseley, pg 42).
 
 > In FRP all essential state takes the form of relations, and the essential logic is expressed using relational algebra extended with (pure) user defined functions.
+
+>>>>>
+
+### What is FRP? ###
+
+![frp](frp.png)
 
 >>>>>
 
@@ -36,9 +45,9 @@ _Functional Relational Programming_ was defined in _Out of the Tar Pit_ (2006 Ma
 
 #### What is FRP? ####
 
-First of all, its a **Relational Model** using the **Relational Algebra**.
+Data is modeled as a **Relational Model** using the **Relational Algebra**.
 
-Relational Variables:
+---
 
 ```
 def relvar Room :: { address:address roomName:string
@@ -58,11 +67,8 @@ Derived variables (views):
 ```
 RoomInfo = extend(Room, (roomSize = width*breadth))
 
-RawSales = project_away(join(Acceptance,
-    join(CurrentOffer,
-        project(Property, address agent
-            dateRegistered))),
-                offerDate bidderName bidderAddress)
+Offers = join(CurrentOffer,
+    project(Property, address agent dateRegistered))
 ```
 
 >>>>>
@@ -76,6 +82,7 @@ candidate key Room = (address, roomName)
 
 foreign key Room (address) in Property
 
+# Declarative data constraints
 count(restrict(PropertyInfo | numberOfRooms < 1)) == 0
 ```
 
@@ -99,7 +106,7 @@ declare store separate Property (photo)
 
 Declarative statement of _effects_:
 
-- **Feeders**: Modify the underlying state on input.
+- **Feeders**: Modify the underlying state on input (subject to constraints).
 - **Observers**: Listeners on a relation that show export data or update UI
 
 (These notions are very underdeveloped in the paper)
@@ -110,97 +117,49 @@ Declarative statement of _effects_:
 #### TL;DR
 
 - Relational model specifies essential state
-- Relational algebra specifies interesting views on state in terms of relvars
-- Observers listen on a view to update UI
-- Accidental complexity is pushed to declarative infrastructure
+- Relational algebra specifies essential logic
+- Observers listen on a relation to update UI and outputs
+- Accidental complexity can be specified declaratively
 
 >>>>>
 
 ### What is the ESSENCE of FRP?
 
-- Separation of _state_ from UI and external actions
+- Separation of _data state_ from UI and external actions
 - Separation of _essential_ and _accidential_ complexity
-- Relational data model
-- Observers and Feeders are **pure** functions
+- Relational data model: _composable_ and _powerful_
+- Observers are **pure** functions of data
+- _Declarative_ data constraints
 
 -----
 
 ### UI Design Influences
 
-> I believe modern UI programming models are influenced from the ideas of Functional Relational Programming.
-
->>>>>
-
-## Timeline Note
-
-- Feb 3, 2006: `jQuery` published
-- Feb 6, 2006: _Out of the Tar Pit_ published
-
+I believe modern UI frameworks partially implement the ideas of Functional Relational Programming.
 
 -----
 
 ### Examples in Web UI
 
-- Redux
 - Elm
+- Redux
 - Om
-
 
 -----
 
-#### Redux
+## Timeline Note
 
-Based on _Flux Architecture_:
-
-![flux-arch](flux-simple-f8-diagram-with-client-action-1300w.png)
-
->>>>>
-
-#### Redux
-
-```javascript
-let store = createStore(update) //update: state -> action -> state
-
-// Observer!
-store.subscribe(() =>
-  console.log(store.getState())
-)
-
-// Feeder!
-store.dispatch(action)
-```
-
-```javascript
-// React Component
-class Counter extends Component {
-  render() {
-    return (
-      <div>
-        <span>{this.props.value}</span>
-      </div>
-    )
-  }
-}
-```
-
->>>>>
-
-#### Redux
-##### Like FRP?
-
-- Separation of _data_ from _UI_ (**Observers**)
-- Separation of _actions_ from _data_ (**Feeders**)
-- Pure Data Changes (Reductions)
+- Feb 3, 2006: `jQuery.com` published
+- Feb 6, 2006: _Out of the Tar Pit_ published
+- 2007 - today: Everyone forgets OotTP
 
 -----
 
 #### Elm Architecture
 
-Basic Pattern of Elm Architecture
-
 - Model: the state of your application
-- Update: a way to update your state
-- View: a way to view your state as HTML
+- Update: a pure reducer of state
+- View: functions of state that render HTML
 
 >>>>>
 
@@ -233,17 +192,78 @@ view model =
 
 #### Elm
 
-Much like Redux,
+- Separation of _data_ from _UI_ (**Observers**)
+- Separation of _actions_ from _data_ (**Feeders**)
+- Pure data reductions and react UI.
+
+But...
+
+- No subscriptions
+- Logic and State are not relational
+- Logic is mixed with Observers
+
+
+-----
+
+
+#### Redux
+
+Based on _Flux Architecture_:
+
+![flux-arch](flux-simple-f8-diagram-with-client-action-1300w.png)
+
+And based on Elm.
+
+>>>>>
+
+#### Redux
+
+```javascript
+let store = createStore(update) //update: state -> action -> state
+
+// Observer!
+store.subscribe(() =>
+  console.log(store.getState())
+)
+
+// Feeder!
+store.dispatch(action)
+
+// Pure state reducer!
+function stateReducer(state, action) { return newState }
+```
+
+```javascript
+// React Component
+class Counter extends Component {
+  render() {
+    return (<div><span>{this.props.value}</span></div>)
+  }
+}
+```
+
+>>>>>
+
+#### Redux
+##### Like FRP?
+
+Much like Elm...
 
 - Separation of _data_ from _UI_ (**Observers**)
 - Separation of _actions_ from _data_ (**Feeders**)
-- Pure Data Changes (Reductions)
+- Pure data reductions and react UI.
+- _Essential logic_ is separated into action handlers and subscriptions
+
+But...
+
+- No way to filter subscriptions
+- Logic and State are not relational
 
 -----
 
 #### Om ####
 
-```clojure
+```clj
 ;; Read from the data
 (defmulti read om/dispatch)
 
@@ -253,12 +273,21 @@ Much like Redux,
 ```
 
 ```clojure
-
 (defui Counter
-  static om/IQuery (query [this] [{:cntr [:app/counter]}])
+  static om/IQuery
+  (query [this] [{:cntr [:app/counter]}]))
+
+```
+
+
+``` clojure
+(defui CounterReact
+  static om/IQuery (om/get-query Counter)
   Object (render [this]
            (let [{count :app/counter :as entity}
                  (get-in (om/props this) [:cntr 0])]
+
+      ;; UI
       (dom/div
         (dom/span nil (str "Count: " count))
         (dom/button
@@ -285,7 +314,7 @@ Much like Redux,
 ```clojure
 (defmethod read :app/counter
   [{:keys [state query]} _ _]
-  {:value (d/q '[:find [(pull ?e ?selector) ...]
+  {:value (d/q `[:find [(pull ?e ?selector) ...]
                  :in $ ?selector
                  :where [?e :app/id]]
             (d/db state) query)})
@@ -299,24 +328,41 @@ Much like Redux,
 
 >>>>>
 
-#### Om/Datascript
+#### Om Next
+
+Newest form of Om.
+
+Provides infrastructure for synchronizing data to server
+
+(The **Accidental Complexity** of UI Programming)
+
+>>>>>
+
+#### Om
 
 Just like Elm and Redux:
 
 - Separation of _data_ from _UI_ (**Observers**)
 - Separation of _actions_ from _data_ (**Feeders**)
+- Pure data reductions and react UI.
+- _Declarative_ datalog queries for observers! (Essential Logic)
 
-But now...
-
-- **Relational** and **Pure** data changes!
+Om Next can even take care of accidental complexity
 
 -----
 
-## Conclusions
+## Recap
 
 - The ideas of FRP were not popular when published
-- But the basic architecture is visible in today's UI frameworks
-- Om/datascript is the most popular embodiment of FRP
+- FRP is partially implemented in today's UI frameworks
+
+>>>>>
+
+## Conclusions
+
+Although FRP was forgotten, software seems to have moved in its direction.
+
+Perhaps this means it was a good idea?
 
 >>>>>
 
@@ -331,6 +377,8 @@ Probably Not.
 ## Thanks
 
 _Jon Eisen_
+
+[@jm_eisen](http://twitter.com/jm_eisen)
 
 http://joneisen.me
 
