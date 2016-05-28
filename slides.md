@@ -378,6 +378,52 @@ Cool!
 
 -----
 
+## BONUS
+
+### Fyra
+
+A side project of mine that implements Codd's Relational Model.
+
+>>>>>
+
+#### Fyra
+
+Plugged in to Om:
+
+``` clojure
+(defrelvar Room :address :room-name :width :breadth :type)
+(defview RoomInfo (extend Room :room-size (* width breadth)))
+(defview LargeRoomInfo (restrict RoomInfo (> 500 room-size)))
+
+(insert db Room room-map) ; also update/delete
+```
+
+``` clojure
+(defui LargeRooms
+  static om/IQuery
+  (query [this] {:rooms LargeRoomInfo})
+  Object (render [this]
+    (dom/ul
+      (for [room (:rooms (om/props this))]
+        (dom/li (:room-name room))))))
+```
+
+>>>>>
+
+#### Fyra
+
+All the beauty of Om's framework with Codd's relational model.
+
+**Warning**: Active development.
+
+>>>>>
+
+<img src="tyson-stairs.jpg" height=500>
+
+So you did do some work for this talk...
+
+-----
+
 ## Recap
 
 - The ideas of FRP were not popular when published
