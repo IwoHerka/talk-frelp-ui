@@ -12,7 +12,9 @@ http://joneisen.me/r/frpui
 
 -----
 
-![flatirons](flatirons.jpg)
+<img src="tyson-field.jpg" height=500>
+
+I'm from Boulder
 
 -----
 
@@ -111,6 +113,14 @@ Declarative statement of _effects_:
 
 (These notions are very underdeveloped in the paper)
 
+>>>>>
+
+#### What is FRP?
+
+<img src="tyson-sleep.jpg" height=500>
+
+zzz...
+
 -----
 
 ### What is FRP?
@@ -202,6 +212,11 @@ But...
 - Logic and State are not relational
 - Logic is mixed with Observers
 
+>>>>>
+
+<img src="tyson-sweater.jpg" height=500>
+
+Intriguing...
 
 -----
 
@@ -258,6 +273,12 @@ But...
 
 - No way to filter subscriptions
 - Logic and State are not relational
+
+>>>>>
+
+<img src="tyson-upsidedown.jpg" height=500>
+
+More Intriguing...
 
 -----
 
@@ -349,12 +370,19 @@ Just like Elm and Redux:
 
 Om Next can even take care of accidental complexity
 
+>>>>>
+
+<img src="tyson-yoga.jpg" height=500>
+
+Cool!
+
 -----
 
 ## Recap
 
 - The ideas of FRP were not popular when published
 - FRP is partially implemented in today's UI frameworks
+- UI Frameworks have improved other areas that FRP didn't flesh out
 
 >>>>>
 
